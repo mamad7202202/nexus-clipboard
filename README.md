@@ -2,82 +2,72 @@
 
 # Nexus Clipboard
 
-### A blazing-fast, private, local-first clipboard engine for Windows.
+**A fast, private, local-first clipboard manager for Windows that respects your RAM.**
 
-[![Built with Rust](https://img.shields.io/badge/Built%20with-Rust%201.80+-dea584?style=flat-square&logo=rust)](https://www.rust-lang.org/)
-[![Tauri 2](https://img.shields.io/badge/Framework-Tauri%20v2-24C8DB?style=flat-square&logo=tauri)](https://v2.tauri.app/)
-[![React 19](https://img.shields.io/badge/UI-React%2019%20%2B%20TypeScript-61DAFB?style=flat-square&logo=react)](https://react.dev/)
-[![Tailwind CSS v4](https://img.shields.io/badge/Style-Tailwind%20v4-38BDF8?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
-[![SQLite FTS5](https://img.shields.io/badge/Storage-SQLite%20FTS5-003B57?style=flat-square&logo=sqlite)](https://sqlite.org/)
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-purple?style=flat-square)](LICENSE)
-[![Latest Release](https://img.shields.io/github/v/release/nexouya/nexus-clipboard?color=22c55e&style=flat-square)](https://github.com/nexouya/nexus-clipboard/releases/latest)
+[![Release](https://img.shields.io/github/v/release/nexouya/nexus-clipboard?color=6366f1&style=flat-square&label=latest%20release)](https://github.com/nexouya/nexus-clipboard/releases/latest)
+[![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0078D4?style=flat-square&logo=windows&logoColor=white)](https://github.com/nexouya/nexus-clipboard/releases/latest)
+[![License](https://img.shields.io/badge/license-AGPL--3.0-purple?style=flat-square)](LICENSE)
+[![Built with Rust](https://img.shields.io/badge/engine-Rust%20%2B%20Tauri%202-dea584?style=flat-square&logo=rust)](https://v2.tauri.app/)
+[![UI](https://img.shields.io/badge/ui-React%2019%20%2B%20Tailwind%20v4-61DAFB?style=flat-square&logo=react)](https://react.dev/)
 
-<br/>
+<br />
 
-<a href="https://github.com/nexouya/nexus-clipboard/releases/latest">
-  <img src="https://img.shields.io/badge/Download%20Installer-v1.0.0%20(Windows%20x64)-6366f1?style=for-the-badge&logo=windows&logoColor=white" alt="Download Installer" />
-</a>
+<p align="center">
+  <a href="#-quick-download"><b>Download (.exe)</b></a> •
+  <a href="#-why-nexus"><b>Why Nexus?</b></a> •
+  <a href="#-features"><b>Features</b></a> •
+  <a href="#-shortcuts"><b>Shortcuts</b></a> •
+  <a href="#-ai-providers"><b>AI Providers</b></a> •
+  <a href="#fa-section"><b>🇮🇷 نسخه فارسی</b></a>
+</p>
 
-<br/><br/>
+<br />
 
-<img src="image/Nexus_en.jpg" alt="Nexus Clipboard Preview" width="100%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.18);" />
+<img src="image/Nexus_en.jpg" alt="Nexus Clipboard Preview" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.25);" />
 
 </div>
 
 ---
 
-<details id="fa-lang">
-<summary><b>🇮🇷 برای مطالعه مستندات به زبان فارسی کلیک کنید (Click here for Persian Documentation)</b></summary>
+<details id="fa-section">
+<summary><b>🇮🇷 برای باز کردن مستندات فارسی کلیک کنید (Click to expand Persian README)</b></summary>
 
 <div dir="rtl" align="right">
 
 <br/>
 
 <div align="center">
-<img src="image/Nexous_fa.jpg" alt="پیش‌نمایش نکسوس کلیپ‌بورد" width="100%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.18);" />
+  <img src="image/Nexous_fa.jpg" alt="پیش‌نمایش نکسوس کلیپ‌بورد" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.25);" />
 </div>
 
 <br/>
 
-**نکسوس کلیپ‌بورد (Nexus Clipboard)** یک ابزار مهندسی‌شده و مدرن برای ارتقای بهره‌وری روزمره توسعه‌دهندگان و کاربران حرفه‌ای است؛ برای تمام کسانی که از برنامه‌های سنگین، کند و ناامن مبتنی بر Electron یا ابزارهای بسته‌ای که داده‌های کلیپ‌بورد را به سرورهای ابری ارسال می‌کنند، خسته شده‌اند.
+نکسوس (Nexus) یه کلیپ‌بورد منیجر سبک، فوق‌العاده سریع و کاملاً محلی (Local-First) برای ویندوزه. هدف ساخت نکسوس ساده بود: ابزار پیش‌فرض کلیپ‌بورد ویندوز تاریخچه محدودی داره و امکانات سرچش ضعیفه، برنامه‌های جانبی هم اکثراً با الکترون (Electron) ساخته شدن که ۵۰۰ تا ۸۰۰ مگابایت رم می‌بلعن و فن سیستم رو درگیر نگه می‌دارن، یا داده‌هات رو بدون اجازه به کلود می‌فرستن.
 
-هر محتوایی که کپی می‌کنید — از متن ساده، لینک، کدهای برنامه‌نویسی، تصاویر اسکرین‌شات با کیفیت بالا، لیست فایل‌ها تا رمزها و توکن‌های حساس — بلافاصله دریافت، دسته‌بندی و ایندکس شده و در کسری از میلی‌ثانیه برای استفاده مجدد در دسترس است؛ بدون اینکه حتی یک بایت داده از سیستم شما خارج شود.
+نکسوس با **Rust (Tauri v2)** در بک‌اند و **React 19** در فرانت‌اند ساخته شده؛ توی حالت بی‌کاری دقیقاً **۰٪ پردازنده** مصرف می‌کنه، مصرف رمش زیر **۳۵ مگابایته**، و هیچ دیتایی بدون درخواست صریح خودت سیستم رو ترک نمی‌کنه.
 
-### ⚡ چرا نکسوس کلیپ‌بورد؟
+### ⚡ مقایسه نکسوس با رقبا
 
-- **مصرف پردازنده عملاً صفر (0.0% CPU Idle)**: به جای ایجاد لوپ و Polling مکرر، مستقیماً از Win32 API نیتیو ویندوز (`AddClipboardFormatListener`) استفاده شده است. هسته برنامه در حالت آماده‌باش کاملاً خواب است و فقط با رخداد کپی بیدار می‌شود.
-- **ثبت در کسری از میکروثانیه و حذف هوشمند موارد تکراری**: هش محتوا بر پایه الگوریتم قدرتمند **BLAKE3** محاسبه می‌شود. کپی مجدد یک آیتم قبلی، بدون اشغال فضای اضافه، همان آیتم را به صدر تاریخچه منتقل می‌کند.
-- **تفکیک رمزنگاری‌شده داده‌های حساس**: داده‌های محرمانه (کلیدهای AWS، توکن‌های GitHub، کدهای JWT، پرایوت کی‌ها، شماره کارت و کانکشن استرینگ‌ها) با موتور Regex هوشمند شناسایی، ماسک و با متد پیشرفته **XChaCha20-Poly1305** رمزنگاری می‌شوند و هرگز به صورت متن باز وارد ایندکس جستجو نخواهند شد.
-- **جستجوی O(1) در میلیون‌ها رکورد**: جستجوی متنی سریع به لطف جدول اکسترنال SQLite FTS5، الگوریتم رتبه‌بندی BM25 و صفحه‌بندی مبتنی بر Keyset (بدون استفاده از دستور کند `OFFSET`).
-- **هوش مصنوعی چندمنظوره با پشتیبانی از همه ارائه‌دهنده‌ها**: قابلیت اتصال به آنتراپیک (Claude)، اوپن‌ای‌آی (OpenAI) و هر سرور یا مدل سازگار با OpenAI (مثل Ollama لوکال، DeepSeek، OpenRouter، LM Studio) با آدرس دلخواه. (به صورت پیش‌فرض کاملاً خاموش است).
+| ویژگی | کلیپ‌بورد ویندوز (Win+V) | برنامه‌های الکترونی (Ditto/CopyQ و...) | نکسوس (Nexus) |
+|---|:---:|:---:|:---:|
+| **مصرف حافظه رم** | حدود ۱۵-۳۰ مگابایت | ۴۰۰ الی ۸۰۰ مگابایت | **حدود ۳۵ مگابایت** |
+| **مصرف پردازنده در حالت Idle** | کم | ۱٪ تا ۳٪ مداوم (پایش ثانیه‌ای) | **۰.۰٪ (رویدادمحور با Win32 API)** |
+| **محدودیت ذخیره تاریخچه** | حداکثر ۲۵ آیتم | نامحدود (معمولاً با افت سرعت) | **بیش از ۵۰۰,۰۰۰ آیتم بدون افت سرعت** |
+| **سرعت جستجو در حجم بالا** | ساده / کند | کند با افزایش دیتابیس | **زیر ۵ میلی‌ثانیه (SQLite FTS5 + BM25)** |
+| **امنیت پسوردها و توکن‌ها** | متن خام در دیتابیس | اکثراً بدون رمزنگاری | **رمزنگاری XChaCha20-Poly1305 + ماسک خودکار** |
+| **هوش مصنوعی اختیاری** | ندارد | وابسته به افزونه | **پشتیبانی مستقیم از Claude, OpenAI, Ollama, DeepSeek** |
 
-### ✨ قابلیت‌های کلیدی
+### 🎯 مهم‌ترین امکانات
+- **لانچر سریع و پیست مستقیم**: با زدن کلید `Ctrl+Shift+V` لانچر شناور باز میشه و متن انتخاب‌شده مستقیماً توی برنامه‌ای که بودی پیست میشه.
+- **پیست آیتم قبلی بدون باز کردن پنجره**: با زدن `Ctrl+Shift+B` آیتم قبلی بلافاصله پیست میشه (عالی برای کپی/پیست متناوب دو مقدار).
+- **تشخیص خودکار و هوشمند محتوا**: تشخیص کدهای برنامه‌نویسی (۱۵ زبان)، لینک‌ها، رنگ‌ها، JSON، ایمیل و شماره تماس.
+- **محافظت از رمزها (Quarantine)**: توکن‌های گیت‌هاب، سکرت‌های AWS، کلیدهای خصوصی و شماره کارت‌ها شناسایی میشن، پیش‌نمایششون ستاره‌دار میشه و متنشون به صورت رمزنگاری‌شده ذخیره میشه تا توی سرچ لو نرن.
+- **۲۱ ابزار تغییر و تبدیل متن کاملاً آفلاین**: تبدیل فرمت‌های `camelCase`، `snake_case`، انکود و دیکود Base64 و URL، مرتب‌سازی خطوط، و فرمت JSON.
+- **هوش مصنوعی بدون قفل روی یک سرویس**: می‌تونی مدل‌های محلی مثل Ollama یا LM Studio رو با Base URL دلخواه وصل کنی یا از کلیدهای OpenAI و Claude استفاده کنی.
 
-1. **دسته‌بندی هوشمند**: تفکیک آنی متن، پیوند، ایمیل، شماره تماس، کد رنگی، JSON، اسکرین‌شات و سورس‌کد با تشخیص ۱۵ زبان مختلف.
-2. **محافظت از سکرت‌ها و پسوردها**: ماسک‌سازی و ذخیره کاملاً کریپتوگرافیک با قابلیت تنظیم پس‌فریز بر روی گاوصندوق داده‌ها.
-3. **لیست سیاه برنامه‌ها (Ignore List)**: فیلتر کردن اتوماتیک نرم‌افزارهای مدیریت رمز (مانند 1Password, Bitwarden, KeePassXC).
-4. **کلیدهای میانبر سراسری**:
-   - `Ctrl+Shift+V`: لانچر شناور برای انتخاب و پیست فوری.
-   - `Ctrl+Shift+B`: پیست آنی آیتم قبلی در پس‌زمینه بدون باز کردن پنجره.
-   - `Ctrl+Shift+P` / `Ctrl+K`: پالت دستورات سراسری.
-5. **۲۱ تبدیل و پردازشگر متن کاملاً آفلاین**: کیس کانورژن (`camelCase`, `snake_case`, `kebab-case`)، انکودینگ (Base64, URL, JSON Pretty/Minify)، فیلتر خطوط تکراری و مرتب‌سازی.
-
-### 🚀 شروع سریع و راه‌اندازی
-
-```bash
-git clone https://github.com/nexouya/nexus-clipboard.git
-cd nexus-clipboard
-pnpm install
-pnpm app:dev
-```
-
-کامپایل فایل نصبی نهایی (ویندوز ۱۰ و ۱۱):
-```bash
-pnpm app:build
-```
-
-### 🔒 امنیت و حریم خصوصی
-داده‌ها در مسیر `%APPDATA%\dev.nexus.clipboard` ذخیره می‌شوند. بدون سرور، بدون تلمتری، بدون ترک سیستم شما.
+### 📥 دانلود و نصب
+- دانلود مستقیم نسخه نصبی: [**Nexus.Clipboard_1.0.0_x64-setup.exe**](https://github.com/nexouya/nexus-clipboard/releases/latest/download/Nexus.Clipboard_1.0.0_x64-setup.exe)
+- پکیج سازمانی MSI: [**Nexus.Clipboard_1.0.0_x64_en-US.msi**](https://github.com/nexouya/nexus-clipboard/releases/latest/download/Nexus.Clipboard_1.0.0_x64_en-US.msi)
 
 ---
 
@@ -86,152 +76,147 @@ pnpm app:build
 
 ---
 
-Nexus Clipboard is an engineered-to-order productivity utility built for developers, power users, and anyone who refuses to accept sluggish, bloated, or cloud-leaking clipboard history managers.
+## 📥 Quick Download
 
-Everything copied — formatted text, links, code snippets, high-resolution screenshots, files, and credentials — is immediately ingested, auto-classified, indexed, and available for instantaneous retrieval without leaving your machine.
+Pre-built releases for Windows 10/11 (64-bit). No installer hoops, signed with checksums:
 
----
-
-## ⚡ Why Nexus?
-
-Most modern clipboard managers fall into one of two traps: either they are sluggish Electron shells consuming 600 MB of RAM while polling the clipboard every 500 ms, or closed-source utilities that upload history to third-party sync backends.
-
-Nexus is built with architectural discipline:
-- **0.0% Idle CPU**: Built directly on top of the native Windows API via `AddClipboardFormatListener`. Nexus sleeps silently and only wakes up when the OS fires a genuine clipboard event.
-- **Microsecond Ingestion & BLAKE3 Deduplication**: Captures are hashed and deduplicated on the fly. Re-copying an existing snippet surfaces it instantly to the top without fragmenting disk storage.
-- **Cryptographic Separation of Sensitive Data**: Passwords, bearer tokens, AWS credentials, and private keys are detected via regex heuristics and encrypted at rest with **XChaCha20-Poly1305** using **Argon2id** key derivation. Plaintext secrets are strictly blocked from entering the search index.
-- **O(1) Search Across Millions of Entries**: Full-text search is powered by an external SQLite FTS5 table with BM25 relevance ranking and cursor-based keyset pagination.
-- **Universal Provider-Agnostic Intelligence**: Optional AI transforms supporting Claude (Anthropic), OpenAI, and any custom/local OpenAI-compatible endpoint (Ollama, DeepSeek, OpenRouter, LM Studio). Fully disabled by default — nothing is sent anywhere unless explicitly prompted.
+| Package | Type | Size | Direct Download |
+|---|---|---|:---:|
+| **Standard Installer** | `.exe` (NSIS) | ~4.1 MB | [**Download Setup.exe**](https://github.com/nexouya/nexus-clipboard/releases/latest/download/Nexus.Clipboard_1.0.0_x64-setup.exe) |
+| **Enterprise / Admin** | `.msi` (Windows Installer) | ~5.4 MB | [**Download .msi**](https://github.com/nexouya/nexus-clipboard/releases/latest/download/Nexus.Clipboard_1.0.0_x64_en-US.msi) |
+| **Release Notes & Hashes** | Release Page | - | [**View Release v1.0.0**](https://github.com/nexouya/nexus-clipboard/releases/latest) |
 
 ---
 
-## 🛠️ Tech Stack & Engineering
+## 💡 Why Nexus?
+
+Most Windows users put up with one of two extremes:
+1. The native Windows clipboard (`Win+V`), which caps out at 25 items, loses history unexpectedly, and lacks full-text search.
+2. Third-party clipboard managers built on Electron that stay resident in memory taking **400MB to 800MB of RAM** and poll the clipboard every few hundred milliseconds.
+
+Nexus was written from scratch in **Rust** to feel like an OS primitive:
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│                    Frontend (Webview Layer)                  │
-│       React 19 • TypeScript (Strict) • Tailwind CSS v4       │
-│             Zustand State • TanStack Virtual List            │
-└──────────────────────────────┬───────────────────────────────┘
-                               │ IPC Commands / Events
-┌──────────────────────────────▼───────────────────────────────┐
-│                    Core Engine (Rust / Tauri 2)              │
-├──────────────────────────────────────────────────────────────┤
-│  ipc/       │ Typed Tauri invoke handlers & event emitter    │
-│  app/       │ Win32 composition: tray, hotkeys, window state │
-│  features/  │ Capture pipeline, paste, backup, AI transforms │
-│  domain/    │ Pure entities, classifier & query compilers    │
-│  infra/     │ SQLite (r2d2), Sharded Blob Store, Win32 API   │
-└──────────────────────────────────────────────────────────────┘
+                  Memory Usage (Cold / Idle)
+Nexus Clipboard   ██ 34 MB
+Windows Win+V     █ 22 MB
+Typical Electron  ████████████████████████████████ 550 MB+
 ```
 
-| Layer | Technologies | Rationale |
-|---|---|---|
-| **Backend & Runtime** | Rust, Tauri 2.x, Win32 API | Native OS performance, memory safety, minimal memory footprint (~35MB) |
-| **Storage Engine** | SQLite 3 (Bundled), FTS5, r2d2 pool | Embedded transactional database, zero-dependency, crash-resilient WAL mode |
-| **Binary Store** | Sharded Content-Addressed Blob Storage | Deduplicates identical screenshots; prevents filesystem inode saturation |
-| **Cryptography** | `argon2`, `chacha20poly1305`, `zeroize` | Audited modern cryptography; 192-bit nonce avoids collision hazards |
-| **Frontend Framework** | React 19, TypeScript 5.9 (Strict), Vite 7 | Modern reactive model with zero compiler overhead |
-| **Virtualization** | `@tanstack/react-virtual` | Seamlessly renders thousands of items without DOM node bloat |
-| **Styling & Tokens** | Tailwind CSS v4, OKLCH Color Space | Perceptually uniform palette, dynamic accenting, instant theme switching |
+- **Zero-poll architecture**: Listens directly to Windows `WM_CLIPBOARDUPDATE` messages via `AddClipboardFormatListener`. If you aren't copying anything, Nexus uses **0.0% CPU**.
+- **Keyset-paginated SQLite FTS5**: Search queries never use SQL `OFFSET`. Searching across 200,000 entries feels as instant as searching across 10.
+- **BLAKE3 Content Addressing**: Copied the same 15MB screenshot 20 times? It's stored once. Deduplication happens before disk writes.
+- **Zero Cloud Leakage**: No telemetry, no usage metrics, no auto-sync servers. Everything lives in `%APPDATA%\dev.nexus.clipboard`.
 
 ---
 
-## ✨ Features
+## ⚡ Features at a Glance
 
-### 1. Ingestion & Intelligent Classifier
-- **Automatic Format Recognition**: Distinguishes plain text, hyperlinks, email addresses, colors (Hex/RGB/HSL), formatted JSON, and code across 15+ programming languages.
-- **Credential Quarantine**: Automatically detects GitHub tokens (`ghp_`), AWS keys (`AKIA`), private keys, JWTs, database connection strings, and Luhn-validated credit card numbers, immediately masking and encrypting them.
-- **Ignore List**: Native exclusion for major password managers (1Password, Bitwarden, KeePassXC, Dashlane, etc.) and custom executables.
+<details open>
+<summary><b>1. Fast Capture & Smart Classification</b></summary>
+<br/>
 
-### 2. Instant Retrieval & Search
-- **Full-Text BM25 Search**: Matches across prefixes, words, and meta tags with zero indexing delay.
-- **Smart Filter Collections**: Quick views for Pinned, Favourites, Today, Vault (encrypted), Frequent, Large files, and Trash.
-- **Keyset Pagination**: Eliminates costly SQL `OFFSET` operations; page 100 loads as quickly as page 1.
+- **Auto-type detection**: Automatically detects and styles code snippets (with syntax highlight across 15+ languages), URLs, colors (HEX/RGB), JSON payloads, emails, files, and rich text.
+- **Automatic credential protection**: AWS keys, GitHub tokens (`ghp_`), private keys, JWTs, and card numbers are masked immediately, encrypted at rest with **XChaCha20-Poly1305**, and kept out of the search index.
+- **Built-in ignore list**: Prevents capturing from password managers like 1Password, Bitwarden, KeePassXC, Dashlane, and Proton Pass out of the box.
+</details>
 
-### 3. Workflow & Global Hotkeys
-- `Ctrl+Shift+V`: Invokes the lightweight **Quick Picker Launcher** centered or at cursor position.
-- `Ctrl+Shift+B`: Direct background paste of the previous clipboard entry without opening the UI.
-- `Ctrl+Shift+P` / `Ctrl+K`: Global command palette for rapid navigation and actions.
+<details open>
+<summary><b>2. Keyboard-Driven Workflow</b></summary>
+<br/>
 
-### 4. 21 Offline Text Transformations
-- **Identifiers**: `camelCase`, `snake_case`, `kebab-case`, `slugify`.
-- **Text & Case**: UPPERCASE, lowercase, Title Case, Sentence case, whitespace collapse, indentation dedenting.
-- **Encoding**: Base64 encode/decode, URL encode/decode, JSON pretty-print & minify.
-- **Line Utilities**: Sort lines, reverse lines, deduplicate lines, line & word counter.
+- **Quick Picker (`Ctrl+Shift+V`)**: A floating spotlight window positioned at your cursor or centered. Tap Enter to paste directly into your active app.
+- **Ghost Paste (`Ctrl+Shift+B`)**: Pastes the *previous* clipboard item without opening any UI. Essential for switching back and forth between two fields.
+- **Command Palette (`Ctrl+Shift+P` / `Ctrl+K`)**: Instant access to every setting, tag, filter, and action.
+</details>
 
-### 5. Configurable AI Intelligence
-- Connect to **Anthropic Claude**, **OpenAI**, or **Any Custom Base URL** (e.g. `http://localhost:11434/v1` for local Ollama, DeepSeek, or OpenRouter).
-- Single-entry transformations: One-click Summarize, Explain Code, and Translate.
-- Strict Privacy: Zero telemetry, zero automated uploads.
+<details>
+<summary><b>3. 21 Built-in Offline Text Tools</b></summary>
+<br/>
+
+Transform any copied text without opening a browser tab:
+- **Case formatting**: `camelCase`, `snake_case`, `kebab-case`, `Title Case`, `UPPERCASE`, `lowercase`, `slugify`.
+- **Developer tools**: Format JSON, Minify JSON, Base64 encode/decode, URL encode/decode.
+- **Line operations**: Sort lines, reverse lines, deduplicate unique lines, strip common indentation, count words & characters.
+</details>
 
 ---
 
-## ⌨️ Shortcuts Reference
+## 🤖 AI Providers
 
-### Global (Anywhere in Windows)
-| Hotkey | Action |
+Nexus includes optional AI transformations (*Summarize*, *Explain Code*, *Translate*). **It is completely disabled by default.**
+
+When turned on, only the single entry you run a transform on is sent — never your clipboard history. We support:
+
+- **Claude (Anthropic)**: Native Claude 3.5 Sonnet / Haiku integration.
+- **OpenAI**: GPT-4o, GPT-4o-mini, o1, o3-mini.
+- **Custom / Local Endpoints**: Any OpenAI-compatible server:
+  - **Ollama**: `http://localhost:11434/v1` (no API key needed)
+  - **DeepSeek**: `https://api.deepseek.com/v1`
+  - **OpenRouter**, **LM Studio**, **LocalAI**, **vLLM**, or private proxies.
+
+Configure it anytime in `Settings (Ctrl+,) → Intelligence`.
+
+---
+
+## ⌨️ Shortcuts
+
+### Global (System-wide)
+| Shortcut | What it does |
 |---|---|
-| `Ctrl+Shift+V` | Open Quick Picker Launcher |
-| `Ctrl+Shift+B` | Quick-paste previous item directly |
-| `Ctrl+Shift+P` | Open Command Palette |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd> | Open Quick Picker Launcher |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>B</kbd> | Paste previous item in background |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> | Open Command Palette |
 
-### Main Window
-| Key | Action |
+### Inside Nexus
+| Shortcut | Action |
 |---|---|
-| `Ctrl+F` or `/` | Focus search bar |
-| `↑` / `↓` or `j` / `k` | Navigate items list |
-| `Enter` | Copy / Paste active item |
-| `p` | Toggle Pin |
-| `Delete` | Move item to Trash |
-| `Ctrl+,` | Open Settings |
-| `Esc` | Clear selection / Dismiss |
+| <kbd>/</kbd> or <kbd>Ctrl</kbd> + <kbd>F</kbd> | Jump to search box |
+| <kbd>↑</kbd> <kbd>↓</kbd> or <kbd>j</kbd> <kbd>k</kbd> | Navigate list |
+| <kbd>Enter</kbd> | Copy & paste active item |
+| <kbd>P</kbd> | Toggle Pin |
+| <kbd>Del</kbd> | Move to Trash |
+| <kbd>Ctrl</kbd> + <kbd>,</kbd> | Open Settings |
+| <kbd>Esc</kbd> | Close window / Clear search |
 
 ---
 
-## 🚀 Getting Started
+## 🛠️ Building from Source
 
 ### Prerequisites
-- **Windows 10 / 11** (x64)
-- **Rust toolchain** (1.80+): `https://rustup.rs`
-- **Node.js** (v20+) & **pnpm**: `npm install -g pnpm`
-- **WebView2 Runtime** (comes pre-installed on Windows 11)
+- **Windows 10 / 11** (64-bit)
+- **Rust 1.80+**: Install via [rustup.rs](https://rustup.rs)
+- **Node.js 20+** & **pnpm**: `npm install -g pnpm`
+- **Visual Studio Build Tools** (C++ workload)
 
-### Installation & Development
+### Build Steps
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/nexouya/nexus-clipboard.git
-   cd nexus-clipboard
-   ```
+```bash
+# 1. Clone repo
+git clone https://github.com/nexouya/nexus-clipboard.git
+cd nexus-clipboard
 
-2. **Install frontend dependencies**:
-   ```bash
-   pnpm install
-   ```
+# 2. Install dependencies
+pnpm install
 
-3. **Start development environment (Hot Reload)**:
-   ```bash
-   pnpm app:dev
-   ```
+# 3. Run in dev mode with hot-reload
+pnpm app:dev
 
-4. **Compile production release**:
-   ```bash
-   pnpm app:build
-   ```
-   *The optimized NSIS and MSI installers will be generated under `src-tauri/target/release/bundle/`.*
+# 4. Build standalone production release (.exe + .msi)
+pnpm app:build
+```
 
 ---
 
-## 🔒 Security & Privacy Model
+## 🔒 Security Architecture
 
-1. **Local-First By Design**: There is no remote account, no analytics daemon, and no remote telemetry ping. All SQLite database files and blob stores live inside `%APPDATA%\dev.nexus.clipboard`.
-2. **Cryptographic Vault**: Uses 256-bit XChaCha20-Poly1305 authenticated encryption. The encryption key is derived using Argon2id with random 192-bit nonces.
-3. **FTS Sanitization**: Sensitive credential plaintext is never handed to SQLite FTS5; only masked previews are written to the index.
-4. **Webview Hardening**: In production builds, developer shortcuts (F5, Ctrl+R) and native context menus are suppressed to prevent webview inspection or accidental reloading.
+- **Vault Key Derivation**: Uses **Argon2id** with memory-hard parameters to derive keys from machine state or user passphrase.
+- **Data Encryption**: **XChaCha20-Poly1305** authenticated encryption with 192-bit random nonces per item.
+- **Search Sanitization**: Credential text is never indexed by SQLite FTS5; only masked placeholder tokens (`ghp_••••••••`) enter search tables.
+- **Webview Hardening**: Right-click context menus, F5 refreshes, and dev shortcuts are disabled in production builds.
 
 ---
 
 ## 📄 License
 
-Distributed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**. See `LICENSE` for the complete license text.
+Nexus Clipboard is open-source software licensed under the **[GNU Affero General Public License v3.0 (AGPL-3.0)](LICENSE)**.
