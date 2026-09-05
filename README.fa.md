@@ -9,7 +9,7 @@
 [![فرانت‌اند React 19](https://img.shields.io/badge/رابط%20کاربری-React%2019%20%2B%20TypeScript-61DAFB?style=flat-square&logo=react)](https://react.dev/)
 [![استایل Tailwind 4](https://img.shields.io/badge/استایل-Tailwind%20v4-38BDF8?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
 [![دیتابیس SQLite FTS5](https://img.shields.io/badge/ذخیره‌سازی-SQLite%20FTS5-003B57?style=flat-square&logo=sqlite)](https://sqlite.org/)
-[![مجوز MIT](https://img.shields.io/badge/مجوز-MIT-purple?style=flat-square)](LICENSE)
+[![مجوز AGPL v3](https://img.shields.io/badge/مجوز-AGPL%20v3-purple?style=flat-square)](LICENSE)
 
 [**مستندات انگلیسی (English README)**](README.md) | [**مستندات فارسی (Persian README)**](README.fa.md)
 
@@ -162,4 +162,4 @@
 
 ## 📄 لایسنس
 
-این پروژه تحت مجوز **MIT** منتشر شده است. برای اطلاعات بیشتر فایل `LICENSE` را مطالعه کنید.
+این پروژه به عنوان یک نرم‌افزار آزاد تحت مجوز معتبر **GNU Affero General Public License v3.0 (AGPL-3.0)** منتشر شده است. برای مطالعه متن کامل به فایل `LICENSE` مراجعه نمایید.

@@ -9,7 +9,7 @@
 [![React 19](https://img.shields.io/badge/UI-React%2019%20%2B%20TypeScript-61DAFB?style=flat-square&logo=react)](https://react.dev/)
 [![Tailwind CSS v4](https://img.shields.io/badge/Style-Tailwind%20v4-38BDF8?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
 [![SQLite FTS5](https://img.shields.io/badge/Storage-SQLite%20FTS5-003B57?style=flat-square&logo=sqlite)](https://sqlite.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-purple?style=flat-square)](LICENSE)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-purple?style=flat-square)](LICENSE)
 
 [**فارسی (Persian Documentation)**](README.fa.md) | [**English Documentation**](README.md)
 
@@ -165,4 +165,4 @@ Nexus is built with architectural discipline:
 
 ## 📄 License
 
-Distributed under the **MIT License**. See `LICENSE` for more information.
+Distributed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**. See `LICENSE` for the complete license text.

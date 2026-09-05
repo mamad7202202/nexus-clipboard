@@ -3,6 +3,7 @@ name = "nexus-clipboard"
 version = "1.0.0"
 description = "Nexus Clipboard — a god-level clipboard manager"
 authors = ["Nexus"]
+license = "AGPL-3.0-only"
 edition = "2021"
 rust-version = "1.80"
 
