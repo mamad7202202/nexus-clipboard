@@ -148,12 +148,12 @@ Nexus includes optional AI transformations (*Summarize*, *Explain Code*, *Transl
 
 When turned on, only the single entry you run a transform on is sent — never your clipboard history. We support:
 
-- **Claude (Anthropic)**: Native Claude 3.5 Sonnet / Haiku integration.
-- **OpenAI**: GPT-4o, GPT-4o-mini, o1, o3-mini.
-- **Custom / Local Endpoints**: Any OpenAI-compatible server:
-  - **Ollama**: `http://localhost:11434/v1` (no API key needed)
-  - **DeepSeek**: `https://api.deepseek.com/v1`
-  - **OpenRouter**, **LM Studio**, **LocalAI**, **vLLM**, or private proxies.
+- **Claude (Anthropic)**: Native Anthropic API integration.
+- **OpenAI**: Native OpenAI API integration.
+- **Custom / Local Endpoints**: Any OpenAI-compatible server or proxy:
+  - **Ollama**: Local models via `http://localhost:11434/v1` (no API key needed)
+  - **DeepSeek**: Cloud API or self-hosted instances
+  - **Any custom gateway**: OpenRouter, LM Studio, LocalAI, vLLM, or self-hosted endpoints.
 
 Configure it anytime in `Settings (Ctrl+,) → Intelligence`.
 
