@@ -10,8 +10,15 @@
 [![استایل Tailwind 4](https://img.shields.io/badge/استایل-Tailwind%20v4-38BDF8?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
 [![دیتابیس SQLite FTS5](https://img.shields.io/badge/ذخیره‌سازی-SQLite%20FTS5-003B57?style=flat-square&logo=sqlite)](https://sqlite.org/)
 [![مجوز AGPL v3](https://img.shields.io/badge/مجوز-AGPL%20v3-purple?style=flat-square)](LICENSE)
+[![آخرین نسخه](https://img.shields.io/github/v/release/nexouya/nexus-clipboard?color=22c55e&style=flat-square)](https://github.com/nexouya/nexus-clipboard/releases/latest)
 
 <br/>
+
+<a href="https://github.com/nexouya/nexus-clipboard/releases/latest">
+  <img src="https://img.shields.io/badge/دانلود%20نصاب%20ویندوز-نسخه%201.0.0-6366f1?style=for-the-badge&logo=windows&logoColor=white" alt="دانلود فایل نصبی" />
+</a>
+
+<br/><br/>
 
 <img src="image/Nexous_fa.jpg" alt="پیش‌نمایش نکسوس کلیپ‌بورد" width="100%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.18);" />
 

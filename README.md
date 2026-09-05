@@ -10,8 +10,15 @@
 [![Tailwind CSS v4](https://img.shields.io/badge/Style-Tailwind%20v4-38BDF8?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
 [![SQLite FTS5](https://img.shields.io/badge/Storage-SQLite%20FTS5-003B57?style=flat-square&logo=sqlite)](https://sqlite.org/)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-purple?style=flat-square)](LICENSE)
+[![Latest Release](https://img.shields.io/github/v/release/nexouya/nexus-clipboard?color=22c55e&style=flat-square)](https://github.com/nexouya/nexus-clipboard/releases/latest)
 
 <br/>
+
+<a href="https://github.com/nexouya/nexus-clipboard/releases/latest">
+  <img src="https://img.shields.io/badge/Download%20Installer-v1.0.0%20(Windows%20x64)-6366f1?style=for-the-badge&logo=windows&logoColor=white" alt="Download Installer" />
+</a>
+
+<br/><br/>
 
 <img src="image/Nexus_en.jpg" alt="Nexus Clipboard Preview" width="100%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.18);" />
 
