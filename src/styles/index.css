@@ -1,0 +1,415 @@
+@import "tailwindcss";
+
+/*
+ * Nexus design system
+ * ===================
+ *
+ * One accent hue, one neutral ramp, and a small set of elevation surfaces.
+ * Everything else is derived. The accent is a runtime CSS variable so the
+ * accent-colour setting recolours the entire interface without a rebuild.
+ *
+ * Colours are authored in OKLCH: it keeps perceived lightness constant across
+ * hues, which is why the palette stays balanced when the user picks orange
+ * instead of indigo.
+ */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Code", "SF Mono", ui-monospace, monospace;
+
+  /* Motion. Short, springy, never bouncy enough to feel toy-like. */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 9px;
+  --radius-lg: 13px;
+  --radius-xl: 18px;
+}
+
+:root {
+  /* The single source of truth for brand colour. Overridden at runtime. */
+  --accent: #6366f1;
+
+  /* Neutrals — light theme */
+  --bg: oklch(99% 0.002 260);
+  --bg-subtle: oklch(97.5% 0.003 260);
+  --surface: oklch(100% 0 0);
+  --surface-2: oklch(98% 0.003 260);
+  --surface-3: oklch(95.5% 0.004 260);
+  --border: oklch(91% 0.005 260);
+  --border-strong: oklch(85% 0.007 260);
+  --text: oklch(21% 0.012 260);
+  --text-muted: oklch(48% 0.011 260);
+  --text-faint: oklch(63% 0.009 260);
+
+  --shadow-color: 260 20% 40%;
+  --overlay: oklch(20% 0.02 260 / 0.28);
+
+  /* Semantic */
+  --success: oklch(65% 0.16 155);
+  --warning: oklch(76% 0.15 75);
+  --danger: oklch(58% 0.21 25);
+  --info: oklch(64% 0.15 245);
+
+  color-scheme: light;
+}
+
+.dark {
+  --bg: oklch(15.5% 0.011 265);
+  --bg-subtle: oklch(13.5% 0.012 265);
+  --surface: oklch(18.5% 0.012 265);
+  --surface-2: oklch(21.5% 0.013 265);
+  --surface-3: oklch(25% 0.014 265);
+  --border: oklch(27% 0.014 265);
+  --border-strong: oklch(34% 0.016 265);
+  --text: oklch(96% 0.004 265);
+  --text-muted: oklch(70% 0.012 265);
+  --text-faint: oklch(55% 0.013 265);
+
+  --shadow-color: 265 45% 3%;
+  --overlay: oklch(8% 0.02 265 / 0.6);
+
+  --success: oklch(72% 0.16 155);
+  --warning: oklch(80% 0.14 75);
+  --danger: oklch(66% 0.19 25);
+  --info: oklch(70% 0.14 245);
+
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-faint: var(--text-faint);
+  --color-accent: var(--accent);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+}
+
+/* --------------------------------------------------------------------------
+ * Base
+ * ------------------------------------------------------------------------ */
+
+* {
+  border-color: var(--border);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
+  /* A desktop app is not a document: text selection is opt-in per element. */
+  user-select: none;
+  cursor: default;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+::selection {
+  background: color-mix(in oklch, var(--accent) 30%, transparent);
+  color: var(--text);
+}
+
+/* Focus rings only for keyboard users; a mouse click should not draw one. */
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: 2px solid color-mix(in oklch, var(--accent) 70%, transparent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* --------------------------------------------------------------------------
+ * Scrollbars — thin, on-surface, appearing only where content scrolls
+ * ------------------------------------------------------------------------ */
+
+.scroll-area {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--text-faint) 40%, transparent) transparent;
+  overscroll-behavior: contain;
+}
+
+.scroll-area::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+.scroll-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll-area::-webkit-scrollbar-thumb {
+  background: color-mix(in oklch, var(--text-faint) 28%, transparent);
+  border-radius: 999px;
+  border: 2.5px solid transparent;
+  background-clip: content-box;
+  transition: background 0.15s;
+}
+.scroll-area::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklch, var(--text-faint) 55%, transparent);
+  background-clip: content-box;
+}
+
+/* --------------------------------------------------------------------------
+ * Utilities
+ * ------------------------------------------------------------------------ */
+
+@utility selectable {
+  user-select: text;
+  cursor: text;
+}
+
+@utility drag-region {
+  -webkit-app-region: drag;
+}
+
+@utility no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* Layered shadows read as real elevation; a single flat shadow does not. */
+@utility elevation-1 {
+  box-shadow:
+    0 1px 2px -1px hsl(var(--shadow-color) / 0.14),
+    0 1px 3px hsl(var(--shadow-color) / 0.08);
+}
+
+@utility elevation-2 {
+  box-shadow:
+    0 2px 4px -2px hsl(var(--shadow-color) / 0.16),
+    0 4px 12px -2px hsl(var(--shadow-color) / 0.12);
+}
+
+@utility elevation-3 {
+  box-shadow:
+    0 4px 8px -4px hsl(var(--shadow-color) / 0.2),
+    0 12px 32px -8px hsl(var(--shadow-color) / 0.22),
+    0 1px 0 0 hsl(0 0% 100% / 0.04) inset;
+}
+
+@utility elevation-float {
+  box-shadow:
+    0 8px 16px -8px hsl(var(--shadow-color) / 0.3),
+    0 24px 64px -16px hsl(var(--shadow-color) / 0.35),
+    0 0 0 1px hsl(var(--shadow-color) / 0.08),
+    0 1px 0 0 hsl(0 0% 100% / 0.05) inset;
+}
+
+@utility accent-ring {
+  box-shadow:
+    0 0 0 1px color-mix(in oklch, var(--accent) 55%, transparent),
+    0 0 0 4px color-mix(in oklch, var(--accent) 14%, transparent);
+}
+
+/* Truncate to N lines. */
+@utility line-clamp-\* {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* --------------------------------------------------------------------------
+ * Animations
+ * ------------------------------------------------------------------------ */
+
+@keyframes nexus-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes nexus-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes nexus-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes nexus-shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes nexus-pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--accent) 40%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.animate-fade-in {
+  animation: nexus-fade-in 0.18s var(--ease-out-expo) both;
+}
+.animate-scale-in {
+  animation: nexus-scale-in 0.22s var(--ease-out-expo) both;
+}
+.animate-slide-up {
+  animation: nexus-slide-up 0.24s var(--ease-out-expo) both;
+}
+.animate-pulse-ring {
+  animation: nexus-pulse-ring 1.4s ease-out infinite;
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 25%,
+    var(--surface-3) 37%,
+    var(--surface-2) 63%
+  );
+  background-size: 200% 100%;
+  animation: nexus-shimmer 1.4s ease-in-out infinite;
+}
+
+/* Respect the OS setting; motion is decoration, never information. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+ * Syntax highlighting — tuned to the app palette rather than a stock theme
+ * ------------------------------------------------------------------------ */
+
+.hljs {
+  color: var(--text);
+  background: transparent;
+}
+.hljs-comment,
+.hljs-quote {
+  color: var(--text-faint);
+  font-style: italic;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-doctag {
+  color: oklch(70% 0.17 300);
+}
+.hljs-string,
+.hljs-regexp,
+.hljs-addition {
+  color: oklch(72% 0.15 150);
+}
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet {
+  color: oklch(76% 0.14 70);
+}
+.hljs-title,
+.hljs-section,
+.hljs-name {
+  color: oklch(74% 0.14 240);
+}
+.hljs-attr,
+.hljs-attribute,
+.hljs-variable,
+.hljs-template-variable {
+  color: oklch(76% 0.13 25);
+}
+.hljs-type,
+.hljs-class .hljs-title,
+.hljs-built_in {
+  color: oklch(78% 0.13 195);
+}
+.hljs-deletion {
+  color: var(--danger);
+}
+.hljs-emphasis {
+  font-style: italic;
+}
+.hljs-strong {
+  font-weight: 600;
+}
+
+:root:not(.dark) .hljs-keyword,
+:root:not(.dark) .hljs-selector-tag,
+:root:not(.dark) .hljs-literal {
+  color: oklch(48% 0.2 300);
+}
+:root:not(.dark) .hljs-string {
+  color: oklch(45% 0.14 150);
+}
+:root:not(.dark) .hljs-number {
+  color: oklch(52% 0.15 60);
+}
+:root:not(.dark) .hljs-title,
+:root:not(.dark) .hljs-name {
+  color: oklch(48% 0.16 250);
+}
+:root:not(.dark) .hljs-attr,
+:root:not(.dark) .hljs-variable {
+  color: oklch(50% 0.15 25);
+}
+:root:not(.dark) .hljs-type,
+:root:not(.dark) .hljs-built_in {
+  color: oklch(48% 0.13 195);
+}
+
+/* --------------------------------------------------------------------------
+ * Search highlighting
+ * ------------------------------------------------------------------------ */
+
+mark.nexus-hit {
+  background: color-mix(in oklch, var(--accent) 26%, transparent);
+  color: inherit;
+  border-radius: 3px;
+  padding: 0 1px;
+  box-shadow: 0 0 0 1px color-mix(in oklch, var(--accent) 22%, transparent);
+}

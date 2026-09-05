@@ -1,0 +1,49 @@
+{
+  "name": "nexus-clipboard",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Nexus Clipboard — a god-level clipboard manager",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "app:dev": "tauri dev",
+    "app:build": "tauri build",
+    "typecheck": "tsc --noEmit",
+    "test:rust": "cargo test --manifest-path src-tauri/Cargo.toml",
+    "test:smoke": "powershell -ExecutionPolicy Bypass -File scripts/smoke.ps1",
+    "test:startup": "powershell -ExecutionPolicy Bypass -File scripts/verify-startup.ps1",
+    "test:encryption": "node scripts/verify-encryption.mjs",
+    "db:inspect": "node scripts/inspect-db.mjs",
+    "icon": "node scripts/make-icon.mjs src-tauri/icons/source.png && tauri icon src-tauri/icons/source.png -o src-tauri/icons"
+  },
+  "dependencies": {
+    "@tanstack/react-virtual": "^3.13.12",
+    "@tauri-apps/api": "^2.9.0",
+    "@tauri-apps/plugin-autostart": "^2.5.0",
+    "@tauri-apps/plugin-dialog": "^2.4.0",
+    "@tauri-apps/plugin-fs": "^2.4.4",
+    "@tauri-apps/plugin-global-shortcut": "^2.3.0",
+    "@tauri-apps/plugin-opener": "^2.5.2",
+    "clsx": "^2.1.1",
+    "highlight.js": "^11.11.1",
+    "lucide-react": "^0.548.0",
+    "motion": "^12.29.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "zustand": "^5.0.9"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.18",
+    "@tauri-apps/cli": "^2.11.4",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.6",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.2",
+    "tailwindcss": "^4.1.18",
+    "typescript": "~5.9.3",
+    "vite": "^7.2.4"
+  }
+}
