@@ -11,6 +11,12 @@
 [![دیتابیس SQLite FTS5](https://img.shields.io/badge/ذخیره‌سازی-SQLite%20FTS5-003B57?style=flat-square&logo=sqlite)](https://sqlite.org/)
 [![مجوز AGPL v3](https://img.shields.io/badge/مجوز-AGPL%20v3-purple?style=flat-square)](LICENSE)
 
+<br/>
+
+<img src="image/Nexous_fa.jpg" alt="پیش‌نمایش نکسوس کلیپ‌بورد" width="100%" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.18);" />
+
+<br/>
+
 [**مستندات انگلیسی (English README)**](README.md) | [**مستندات فارسی (Persian README)**](README.fa.md)
 
 </div>
