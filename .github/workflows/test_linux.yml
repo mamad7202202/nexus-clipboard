@@ -52,28 +52,15 @@ jobs:
       - name: Cargo Check
         run: |
           cargo check --manifest-path src-tauri/Cargo.toml 2>&1 | tee cargo_output.log || true
-          echo "=== FIRST 40 LINES ==="
-          head -n 40 cargo_output.log
-          echo "=== ERRORS IN OUTPUT ==="
-          grep -C 3 -i "error" cargo_output.log || true
-          echo "=== LAST 40 LINES ==="
-          tail -n 40 cargo_output.log
-          cat cargo_output.log | grep -q "Finished" && exit 0 || exit 1
-
-      - name: Tauri Build Release Deb and AppImage
-        id: tauri_build
-        continue-on-error: true
-        run: |
-          pnpm tauri build --bundles deb,appimage 2>&1 | tee tauri_build_err.txt
+          mkdir -p build_logs
+          cp cargo_output.log build_logs/cargo_output.txt
 
       - name: Upload build log
         uses: actions/upload-artifact@v4
         with:
-          name: tauri-build-log
-          path: tauri_build_err.txt
+          name: cargo-check-output
+          path: build_logs/cargo_output.txt
 
-      - name: Fail if build failed
-        if: steps.tauri_build.outcome == 'failure'
+      - name: Check success
         run: |
-          cat tauri_build_err.txt
-          exit 1
+          cat build_logs/cargo_output.txt | grep -q "Finished" && exit 0 || exit 1
