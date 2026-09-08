@@ -1,0 +1,27 @@
+# Maintainer: nexouya <contact@nexouya.com>
+# Native package for Arch Linux, Parch Linux, Manjaro and EndeavourOS.
+pkgname=nexus-clipboard
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="A fast, private, local-first clipboard manager"
+arch=('x86_64')
+url="https://github.com/nexouya/nexus-clipboard"
+license=('AGPL3')
+depends=('webkit2gtk-4.1' 'libayatana-appindicator' 'librsvg' 'openssl')
+makedepends=('cargo' 'nodejs' 'pnpm')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+    cd "$pkgname-$pkgver"
+    pnpm install --frozen-lockfile
+    pnpm build
+    cargo build --release --manifest-path src-tauri/Cargo.toml
+}
+
+package() {
+    cd "$pkgname-$pkgver"
+    install -Dm755 "src-tauri/target/release/nexus-clipboard" "$pkgdir/usr/bin/nexus-clipboard"
+    install -Dm644 "src-tauri/icons/128x128.png" "$pkgdir/usr/share/icons/hicolor/128x128/apps/nexus-clipboard.png"
+    install -Dm644 "packaging/nexus-clipboard.desktop" "$pkgdir/usr/share/applications/nexus-clipboard.desktop"
+}

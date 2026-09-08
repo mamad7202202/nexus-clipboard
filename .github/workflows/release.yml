@@ -17,11 +17,31 @@ jobs:
         include:
           - platform: 'windows-latest'
             args: ''
+          - platform: 'ubuntu-22.04'
+            args: '--bundles deb,appimage,rpm'
 
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Install Linux build dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev \
+            libxfixes-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            rpm
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -36,8 +56,6 @@ jobs:
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: x86_64-pc-windows-msvc
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
@@ -57,7 +75,7 @@ jobs:
         with:
           tagName: v__VERSION__
           releaseName: 'Nexus Clipboard v__VERSION__'
-          releaseBody: 'See the assets to download this version and install.'
+          releaseBody: 'Universal multi-platform release: Windows installer plus Ubuntu/Debian (.deb), Fedora (.rpm) and portable (.AppImage) Linux builds. Arch/Parch users can build natively from packaging/PKGBUILD.'
           releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}

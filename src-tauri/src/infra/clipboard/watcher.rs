@@ -230,10 +230,79 @@ fn spawn_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) -> crate::err
 }
 
 // ---------------------------------------------------------------------------
-// Portable fallback: polling
+// Linux implementation: event-driven via XFixes (no polling)
 // ---------------------------------------------------------------------------
 
-#[cfg(not(windows))]
+#[cfg(target_os = "linux")]
+fn spawn_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) -> crate::error::Result<()> {
+    use clipboard_master::{CallbackResult, ClipboardHandler, Master};
+
+    struct LinuxHandler {
+        tx: Sender<ClipboardChanged>,
+        handle: WatcherHandle,
+    }
+
+    impl ClipboardHandler for LinuxHandler {
+        fn on_clipboard_change(&mut self) -> CallbackResult {
+            if !self.handle.is_running() {
+                return CallbackResult::Stop;
+            }
+            if self.handle.is_paused() {
+                return CallbackResult::Next;
+            }
+
+            let seq = crate::infra::platform::linux::bump_sequence_number();
+            let expected = self.handle.self_write.load(Ordering::SeqCst);
+
+            // Echo suppression: ignore the event our own paste just produced.
+            if expected != 0 && seq <= expected {
+                self.handle.self_write.store(0, Ordering::SeqCst);
+                return CallbackResult::Next;
+            }
+
+            // A closed receiver means the app is shutting down.
+            if self.tx.send(ClipboardChanged { sequence: seq }).is_err() {
+                return CallbackResult::Stop;
+            }
+            CallbackResult::Next
+        }
+
+        fn on_clipboard_error(&mut self, error: std::io::Error) -> CallbackResult {
+            tracing::warn!(?error, "Linux clipboard event error");
+            CallbackResult::Next
+        }
+    }
+
+    std::thread::Builder::new()
+        .name("clipboard-watcher-linux".into())
+        .spawn(move || {
+            let handler = LinuxHandler { tx, handle };
+            // Master::new opens the X11 connection; on a pure-Wayland session
+            // without XWayland this fails, and capture stays disabled rather
+            // than crashing or falling back to a polling loop.
+            let mut master = match Master::new(handler) {
+                Ok(master) => master,
+                Err(e) => {
+                    tracing::error!(?e, "cannot initialize the Linux clipboard monitor");
+                    return;
+                }
+            };
+            // run() blocks on XFixes selection events, so this thread costs
+            // nothing while idle. It returns only on Stop or fatal error.
+            if let Err(e) = master.run() {
+                tracing::error!(?e, "Linux clipboard monitor terminated unexpectedly");
+            }
+        })
+        .map_err(|e| crate::error::Error::platform(format!("cannot spawn watcher thread: {e}")))?;
+
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Portable fallback: polling (platforms with no native listener)
+// ---------------------------------------------------------------------------
+
+#[cfg(not(any(windows, target_os = "linux")))]
 fn spawn_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) -> crate::error::Result<()> {
     use std::time::Duration;
 

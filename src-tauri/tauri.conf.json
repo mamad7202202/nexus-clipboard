@@ -32,11 +32,12 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis", "msi"],
+    "targets": ["nsis", "msi", "deb", "appimage", "rpm"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
+      "icons/icon.png",
       "icons/icon.icns",
       "icons/icon.ico"
     ],
@@ -44,6 +45,26 @@
     "category": "Productivity",
     "shortDescription": "A fast, private clipboard manager",
     "longDescription": "Nexus Clipboard keeps a searchable history of everything you copy — text, links, code, images and files — entirely on your machine. Instant search across millions of items, smart content detection, encrypted storage for credentials, and a global hotkey that pastes straight back into whatever you were working in.",
+    "linux": {
+      "deb": {
+        "depends": [
+          "libwebkit2gtk-4.1-0",
+          "libayatana-appindicator3-1",
+          "librsvg2-2"
+        ],
+        "section": "utils"
+      },
+      "rpm": {
+        "depends": [
+          "webkit2gtk4.1",
+          "libayatana-appindicator3",
+          "librsvg2"
+        ]
+      },
+      "appimage": {
+        "bundleMediaFramework": false
+      }
+    },
     "windows": {
       "nsis": {
         "installMode": "perMachine",

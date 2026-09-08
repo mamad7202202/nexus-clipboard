@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Nexus Clipboard
+Comment=A fast, private, local-first clipboard manager
+Exec=nexus-clipboard %U
+Icon=nexus-clipboard
+Terminal=false
+Type=Application
+Categories=Utility;Application;
+StartupWMClass=nexus-clipboard
+Keywords=clipboard;manager;history;copy;paste;
