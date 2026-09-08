@@ -18,7 +18,7 @@ jobs:
           - platform: 'windows-latest'
             args: ''
           - platform: 'ubuntu-22.04'
-            args: '--bundles deb'
+            args: '--bundles deb,appimage'
 
     runs-on: ${{ matrix.platform }}
     steps:
