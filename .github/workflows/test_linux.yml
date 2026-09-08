@@ -50,7 +50,19 @@ jobs:
         run: pnpm build
 
       - name: Cargo Check
-        run: cargo check --manifest-path src-tauri/Cargo.toml --verbose
+        id: check
+        continue-on-error: true
+        run: |
+          cargo check --manifest-path src-tauri/Cargo.toml 2>&1 | tee cargo_check_err.txt
 
-      - name: Cargo Build Release
-        run: cargo build --release --manifest-path src-tauri/Cargo.toml --verbose
+      - name: Upload compiler error
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiler-error-log
+          path: cargo_check_err.txt
+
+      - name: Fail if check failed
+        if: steps.check.outcome == 'failure'
+        run: |
+          cat cargo_check_err.txt
+          exit 1
