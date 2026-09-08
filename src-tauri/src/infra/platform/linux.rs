@@ -182,7 +182,7 @@ fn read_x11_window() -> Option<WindowInfo> {
     let utf8_string = conn.intern_atom(false, b"UTF8_STRING").ok()?.reply().ok()?.atom;
 
     let prop = conn
-        .get_property(false, root, net_active, AtomEnum::WINDOW as u32, 0, 1)
+        .get_property(false, root, net_active, u32::from(AtomEnum::WINDOW), 0, 1)
         .ok()?
         .reply()
         .ok()?;
@@ -203,8 +203,8 @@ fn read_x11_window() -> Option<WindowInfo> {
         .get_property(
             false,
             win_id,
-            AtomEnum::WM_CLASS as u32,
-            AtomEnum::STRING as u32,
+            u32::from(AtomEnum::WM_CLASS),
+            u32::from(AtomEnum::STRING),
             0,
             1024,
         )
