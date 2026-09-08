@@ -51,9 +51,14 @@ jobs:
 
       - name: Cargo Check
         run: |
-          cargo check --manifest-path src-tauri/Cargo.toml 2>&1 | head -n 40 || true
-          cargo check --manifest-path src-tauri/Cargo.toml 2>&1 | tail -n 50
-          cargo check --manifest-path src-tauri/Cargo.toml
+          cargo check --manifest-path src-tauri/Cargo.toml 2>&1 | tee cargo_output.log || true
+          echo "=== FIRST 40 LINES ==="
+          head -n 40 cargo_output.log
+          echo "=== ERRORS IN OUTPUT ==="
+          grep -C 3 -i "error" cargo_output.log || true
+          echo "=== LAST 40 LINES ==="
+          tail -n 40 cargo_output.log
+          cat cargo_output.log | grep -q "Finished" && exit 0 || exit 1
 
       - name: Tauri Build Release Deb and AppImage
         id: tauri_build
