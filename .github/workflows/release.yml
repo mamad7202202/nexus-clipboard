@@ -72,6 +72,7 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUST_BACKTRACE: 1
         with:
           tagName: v__VERSION__
           releaseName: 'Nexus Clipboard v__VERSION__'
