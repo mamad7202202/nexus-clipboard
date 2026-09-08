@@ -230,11 +230,12 @@ fn spawn_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) -> crate::err
 }
 
 // ---------------------------------------------------------------------------
-// Linux implementation: event-driven via XFixes (no polling)
+// Linux implementation: XFixes event-driven with Wayland fallback
 // ---------------------------------------------------------------------------
 
 #[cfg(target_os = "linux")]
 fn spawn_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) -> crate::error::Result<()> {
+    use std::time::Duration;
     use clipboard_master::{CallbackResult, ClipboardHandler, Master};
 
     struct LinuxHandler {
@@ -276,21 +277,68 @@ fn spawn_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) -> crate::err
     std::thread::Builder::new()
         .name("clipboard-watcher-linux".into())
         .spawn(move || {
-            let handler = LinuxHandler { tx, handle };
-            // Master::new opens the X11 connection; on a pure-Wayland session
-            // without XWayland this fails, and capture stays disabled rather
-            // than crashing or falling back to a polling loop.
-            let mut master = match Master::new(handler) {
-                Ok(master) => master,
-                Err(e) => {
-                    tracing::error!(?e, "cannot initialize the Linux clipboard monitor");
+            let handler = LinuxHandler { tx: tx.clone(), handle: handle.clone() };
+
+            // 1. First attempt: native X11/XFixes event loop
+            let is_x11_available = Master::new(handler);
+            if let Ok(mut master) = is_x11_available {
+                tracing::info!("Linux clipboard monitor initialized with native X11/XFixes listener");
+                if let Err(e) = master.run() {
+                    tracing::warn!(?e, "X11 clipboard monitor exited; falling back to Wayland watcher");
+                } else {
                     return;
                 }
-            };
-            // run() blocks on XFixes selection events, so this thread costs
-            // nothing while idle. It returns only on Stop or fatal error.
-            if let Err(e) = master.run() {
-                tracing::error!(?e, "Linux clipboard monitor terminated unexpectedly");
+            } else {
+                tracing::info!("X11 server not available or pure Wayland detected (e.g. KWin/Mutter); activating Wayland watcher");
+            }
+
+            // 2. Wayland session (KDE Plasma 6 / GNOME / wlroots):
+            // In Wayland sessions, apps without an active focused surface cannot use XFixes.
+            // We use an adaptive watcher that safely queries the Wayland clipboard data source.
+            const WAYLAND_POLL: Duration = Duration::from_millis(250);
+            let mut last_hash = String::new();
+
+            while handle.is_running() {
+                std::thread::sleep(WAYLAND_POLL);
+                if handle.is_paused() {
+                    continue;
+                }
+
+                // Probe the Wayland clipboard via arboard (Wayland backend)
+                let Ok(mut clip) = arboard::Clipboard::new() else { continue };
+
+                // Fast fingerprint: check text first
+                let current_content = if let Ok(text) = clip.get_text() {
+                    if text.is_empty() {
+                        continue;
+                    }
+                    crate::util::hash_bytes(text.as_bytes())
+                } else if let Ok(img) = clip.get_image() {
+                    let mut hash_input = Vec::with_capacity(16 + img.bytes.len().min(1024));
+                    hash_input.extend_from_slice(&(img.width as u32).to_le_bytes());
+                    hash_input.extend_from_slice(&(img.height as u32).to_le_bytes());
+                    hash_input.extend_from_slice(&img.bytes[..img.bytes.len().min(1024)]);
+                    crate::util::hash_bytes(&hash_input)
+                } else {
+                    continue;
+                };
+
+                if current_content == last_hash {
+                    continue;
+                }
+
+                last_hash = current_content;
+                let seq = crate::infra::platform::linux::bump_sequence_number();
+                let expected = handle.self_write.load(Ordering::SeqCst);
+
+                if expected != 0 && seq <= expected {
+                    handle.self_write.store(0, Ordering::SeqCst);
+                    continue;
+                }
+
+                if tx.send(ClipboardChanged { sequence: seq }).is_err() {
+                    break;
+                }
             }
         })
         .map_err(|e| crate::error::Error::platform(format!("cannot spawn watcher thread: {e}")))?;

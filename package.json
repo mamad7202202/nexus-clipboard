@@ -1,7 +1,7 @@
 {
   "name": "nexus-clipboard",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "AGPL-3.0-only",
   "type": "module",
   "description": "Nexus Clipboard — a god-level clipboard manager",

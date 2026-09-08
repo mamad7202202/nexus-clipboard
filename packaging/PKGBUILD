@@ -1,7 +1,7 @@
 # Maintainer: nexouya <contact@nexouya.com>
 # Native package for Arch Linux, Parch Linux, Manjaro and EndeavourOS.
 pkgname=nexus-clipboard
-pkgver=1.0.0
+pkgver=1.1.0
 pkgrel=1
 pkgdesc="A fast, private, local-first clipboard manager"
 arch=('x86_64')
