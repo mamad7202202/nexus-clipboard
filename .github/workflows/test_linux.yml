@@ -50,7 +50,10 @@ jobs:
         run: pnpm build
 
       - name: Cargo Check
-        run: cargo check --manifest-path src-tauri/Cargo.toml
+        run: |
+          cargo check --manifest-path src-tauri/Cargo.toml 2>&1 | head -n 40 || true
+          cargo check --manifest-path src-tauri/Cargo.toml 2>&1 | tail -n 50
+          cargo check --manifest-path src-tauri/Cargo.toml
 
       - name: Tauri Build Release Deb and AppImage
         id: tauri_build
