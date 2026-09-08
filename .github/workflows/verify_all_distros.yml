@@ -1,0 +1,96 @@
+name: Comprehensive Multi-Distro Verification
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - verify-distros
+
+jobs:
+  test-ubuntu:
+    name: Ubuntu / Debian Build & Tests
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev \
+            libxfixes-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            xvfb
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install frontend dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build frontend
+        run: pnpm build
+
+      - name: Run Rust Tests
+        run: cargo test --manifest-path src-tauri/Cargo.toml --verbose
+
+      - name: Build Bundles (deb, appimage)
+        run: pnpm tauri build --bundles deb,appimage
+
+  test-arch:
+    name: Arch Linux (AUR PKGBUILD Build)
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - name: Install Arch Base Devel & Dependencies
+        run: |
+          pacman -Syu --noconfirm base-devel git rust nodejs npm pnpm webkit2gtk-4.1 libayatana-appindicator librsvg openssl
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Test PKGBUILD Build
+        run: |
+          useradd -m builder && chown -R builder:builder .
+          su builder -c "pnpm install --no-frozen-lockfile && pnpm build && cargo build --release --manifest-path src-tauri/Cargo.toml"
+
+  test-fedora:
+    name: Fedora / RHEL Verification
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    steps:
+      - name: Install Fedora Dependencies
+        run: |
+          dnf -y update
+          dnf -y install git rust cargo nodejs npm openssl-devel webkit2gtk4.1-devel libayatana-appindicator-devel librsvg2-devel gcc-c++ make
+          npm install -g pnpm
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify Frontend & Cargo Build
+        run: |
+          pnpm install --no-frozen-lockfile
+          pnpm build
+          cargo check --manifest-path src-tauri/Cargo.toml
+          cargo build --release --manifest-path src-tauri/Cargo.toml
