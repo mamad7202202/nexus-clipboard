@@ -86,11 +86,59 @@ jobs:
         if: steps.cargo_check.outcome == 'failure'
         run: exit 1
 
-      - name: Run Rust Tests
-        run: cargo test --manifest-path src-tauri/Cargo.toml --verbose
+      - name: Run Rust Tests & Capture Log
+        id: rust_tests
+        continue-on-error: true
+        run: |
+          xvfb-run -a cargo test --manifest-path src-tauri/Cargo.toml --verbose 2>&1 | tee cargo_test.log
+          exit ${PIPESTATUS[0]}
 
-      - name: Run Cargo Build Release
-        run: cargo build --manifest-path src-tauri/Cargo.toml --release
+      - name: Post Test Log to Issue if Failed
+        if: steps.rust_tests.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const log = fs.existsSync('cargo_test.log') ? fs.readFileSync('cargo_test.log', 'utf8') : 'No log';
+            const lines = log.split('\n');
+            const summary = lines.slice(-100).join('\n');
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Ubuntu CI Rust Tests Failure Log',
+              body: '```text\n' + summary + '\n```'
+            });
+
+      - name: Enforce Rust Tests Status
+        if: steps.rust_tests.outcome == 'failure'
+        run: exit 1
+
+      - name: Run Cargo Build Release & Capture Log
+        id: cargo_build
+        continue-on-error: true
+        run: |
+          cargo build --manifest-path src-tauri/Cargo.toml --release 2>&1 | tee cargo_build.log
+          exit ${PIPESTATUS[0]}
+
+      - name: Post Cargo Build Log to Issue if Failed
+        if: steps.cargo_build.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const log = fs.existsSync('cargo_build.log') ? fs.readFileSync('cargo_build.log', 'utf8') : 'No log';
+            const lines = log.split('\n');
+            const summary = lines.slice(-100).join('\n');
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Ubuntu CI Cargo Release Build Failure Log',
+              body: '```text\n' + summary + '\n```'
+            });
+
+      - name: Enforce Cargo Build Status
+        if: steps.cargo_build.outcome == 'failure'
+        run: exit 1
 
       - name: Build Bundles (deb, appimage)
         run: pnpm tauri build --bundles deb,appimage

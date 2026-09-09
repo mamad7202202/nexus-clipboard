@@ -12,6 +12,7 @@
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::Arc;
+use std::time::Duration;
 
 /// What the watcher reports. The payload is read on the consumer side so the
 /// message loop stays responsive.
@@ -219,7 +220,6 @@ fn spawn_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) -> crate::err
 
 #[cfg(target_os = "linux")]
 fn spawn_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) -> crate::error::Result<()> {
-    use std::time::Duration;
     use crate::infra::platform::linux::{detect_session_type, SessionType};
 
     std::thread::Builder::new()
