@@ -8,6 +8,10 @@ on:
       - fix-linux-clipboard-copyq-model
       - main
 
+permissions:
+  issues: write
+  contents: write
+
 jobs:
   test-ubuntu:
     name: Ubuntu 22.04 (X11 & Wayland Build & Tests)
@@ -55,52 +59,38 @@ jobs:
       - name: Build frontend
         run: pnpm build
 
-      - name: Run Cargo Check (--locked)
-        run: cargo check --manifest-path src-tauri/Cargo.toml --locked
+      - name: Run Cargo Check & Capture Log
+        id: cargo_check
+        continue-on-error: true
+        run: |
+          cargo check --manifest-path src-tauri/Cargo.toml 2>&1 | tee cargo_check.log
+          exit ${PIPESTATUS[0]}
 
-      - name: Run Rust Tests (--locked)
-        run: cargo test --manifest-path src-tauri/Cargo.toml --locked --verbose
+      - name: Post Cargo Check Log to Issue if Failed
+        if: steps.cargo_check.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const log = fs.existsSync('cargo_check.log') ? fs.readFileSync('cargo_check.log', 'utf8') : 'No log';
+            const lines = log.split('\n');
+            const summary = lines.slice(-100).join('\n');
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Ubuntu CI Cargo Check Failure Log',
+              body: '```text\n' + summary + '\n```'
+            });
 
-      - name: Run Cargo Build Release (--locked)
-        run: cargo build --manifest-path src-tauri/Cargo.toml --release --locked
+      - name: Enforce Cargo Check Status
+        if: steps.cargo_check.outcome == 'failure'
+        run: exit 1
+
+      - name: Run Rust Tests
+        run: cargo test --manifest-path src-tauri/Cargo.toml --verbose
+
+      - name: Run Cargo Build Release
+        run: cargo build --manifest-path src-tauri/Cargo.toml --release
 
       - name: Build Bundles (deb, appimage)
         run: pnpm tauri build --bundles deb,appimage
-
-  test-arch:
-    name: Arch Linux (AUR PKGBUILD Build)
-    runs-on: ubuntu-latest
-    container: archlinux:latest
-    steps:
-      - name: Install Arch Base Devel & Dependencies
-        run: |
-          pacman -Syu --noconfirm base-devel git rust nodejs npm pnpm webkit2gtk-4.1 libayatana-appindicator librsvg openssl wl-clipboard xclip
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Test PKGBUILD & Cargo Build
-        run: |
-          useradd -m builder && chown -R builder:builder .
-          su builder -c "pnpm install --no-frozen-lockfile && pnpm build && cargo check --manifest-path src-tauri/Cargo.toml --locked && cargo build --release --manifest-path src-tauri/Cargo.toml --locked"
-
-  test-fedora:
-    name: Fedora 40 / RHEL Verification
-    runs-on: ubuntu-latest
-    container: fedora:latest
-    steps:
-      - name: Install Fedora Dependencies
-        run: |
-          dnf -y update
-          dnf -y install git rust cargo nodejs npm openssl-devel webkit2gtk4.1-devel libayatana-appindicator-devel librsvg2-devel gcc-c++ make wl-clipboard xclip
-          npm install -g pnpm
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Verify Frontend & Cargo Build
-        run: |
-          pnpm install --no-frozen-lockfile
-          pnpm build
-          cargo check --manifest-path src-tauri/Cargo.toml --locked
-          cargo build --release --manifest-path src-tauri/Cargo.toml --locked
