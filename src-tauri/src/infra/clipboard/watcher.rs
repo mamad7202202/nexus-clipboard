@@ -245,8 +245,8 @@ fn spawn_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) -> crate::err
 #[cfg(target_os = "linux")]
 fn run_x11_xfixes_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) -> Result<(), Box<dyn std::error::Error>> {
     use x11rb::connection::Connection;
-    use x11rb::protocol::xfixes::*;
-    use x11rb::protocol::xproto::*;
+    use x11rb::protocol::xfixes::{ConnectionExt as _, SelectionEventMask};
+    use x11rb::protocol::xproto::{AtomEnum, ConnectionExt as _};
 
     let (conn, screen_num) = x11rb::connect(None)?;
     let screen = conn.setup().roots.get(screen_num).ok_or("no screen")?;

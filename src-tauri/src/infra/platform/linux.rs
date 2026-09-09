@@ -18,6 +18,8 @@ use std::time::Duration;
 
 use enigo::{Direction, Enigo, Key, Keyboard, Settings};
 use once_cell::sync::Lazy;
+use x11rb::protocol::xproto::ConnectionExt as _;
+use x11rb::wrapper::ConnectionExt as _;
 
 use crate::error::{Error, Result};
 
@@ -501,7 +503,7 @@ fn provide_wayland_clipboard(payload: ClipboardPayload, token: Arc<AtomicU32>) {
                 let _ = child.kill();
             }
         }
-        ClipboardPayload::Html { text, html } => {
+        ClipboardPayload::Html { text: _, html } => {
             // Provide HTML with text fallback
             cmd.args(["--type", "text/html"]);
             if let Ok(mut child) = cmd.stdin(Stdio::piped()).spawn() {
