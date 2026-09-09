@@ -1,8 +1,8 @@
 //! Reading the current clipboard into a domain [`Snapshot`].
 //!
 //! Formats are probed in order of specificity: files, then images, then text.
-//! That order matters — copying a PNG from Explorer offers both CF_HDROP and a
-//! bitmap, and the file path is the more useful of the two.
+//! That order matters — copying a PNG from Explorer/Nautilus offers both file paths
+//! and bitmap data, and the file path is the more useful of the two.
 
 use arboard::Clipboard;
 
@@ -19,7 +19,7 @@ const MAX_IMAGE_PIXELS: u32 = 4096;
 /// Returns `Ok(None)` when the clipboard holds nothing we handle (or is empty),
 /// which is a normal outcome, not an error.
 pub fn read_snapshot() -> Result<Option<Snapshot>> {
-    // 1. File paths (Explorer, most file managers).
+    // 1. File paths (Explorer, Nautilus, Dolphin, Thunar).
     if let Some(files) = platform::read_files() {
         if !files.is_empty() {
             return Ok(Some(Snapshot::Files(files)));
@@ -40,7 +40,22 @@ pub fn read_snapshot() -> Result<Option<Snapshot>> {
         _ => {}
     }
 
-    // 3. Raster image (screenshots, copied pictures).
+    // 3. Fallback for Wayland/X11: try reading text directly via wl-paste or raw command if arboard was empty
+    #[cfg(target_os = "linux")]
+    {
+        if let Ok(output) = std::process::Command::new("wl-paste").args(["-n"]).output() {
+            if output.status.success() && !output.stdout.is_empty() {
+                if let Ok(text) = String::from_utf8(output.stdout) {
+                    if !text.trim().is_empty() {
+                        let html = platform::read_html().filter(|h| !h.trim().is_empty());
+                        return Ok(Some(Snapshot::Text { text, html }));
+                    }
+                }
+            }
+        }
+    }
+
+    // 4. Raster image (screenshots, copied pictures).
     if let Ok(image) = clipboard.get_image() {
         let width = image.width as u32;
         let height = image.height as u32;
@@ -90,9 +105,6 @@ fn maybe_downscale(png: Vec<u8>, width: u32, height: u32) -> Result<(Vec<u8>, u3
 }
 
 /// Build a small PNG thumbnail as a data URI for the list view.
-///
-/// Returns `None` rather than failing: a missing thumbnail degrades the UI
-/// slightly, but a failed capture would lose the item entirely.
 pub fn thumbnail(png: &[u8], max_edge: u32) -> Option<String> {
     use base64::Engine;
 

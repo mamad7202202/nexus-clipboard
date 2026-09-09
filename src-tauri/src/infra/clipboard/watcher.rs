@@ -3,12 +3,11 @@
 //! On Windows we create a message-only window and register it with
 //! `AddClipboardFormatListener`. The OS then posts `WM_CLIPBOARDUPDATE`
 //! whenever the clipboard changes — no polling, so the process uses no CPU at
-//! all while the user is not copying anything. That is the single biggest
-//! difference between this and the poll-every-500ms approach most clipboard
-//! managers take.
+//! all while the user is not copying anything.
 //!
-//! The watcher owns a dedicated thread because a Win32 message loop must run on
-//! the thread that created the window.
+//! On Linux we monitor both standard CLIPBOARD and PRIMARY selection (mouse
+//! selection, matching CopyQ behavior) via native XFixes events on X11,
+//! with adaptive, push-driven Wayland monitoring.
 
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::mpsc::{self, Receiver, Sender};
@@ -18,7 +17,7 @@ use std::sync::Arc;
 /// message loop stays responsive.
 #[derive(Debug, Clone, Copy)]
 pub struct ClipboardChanged {
-    /// Windows' clipboard sequence number at the time of the event.
+    /// Sequence number at the time of the event.
     pub sequence: u32,
 }
 
@@ -47,9 +46,6 @@ impl WatcherHandle {
     /// the cheapest way to tell "us" from "them" is the sequence number the OS
     /// assigns to the write we are about to make.
     pub fn expect_self_write(&self) {
-        // The write has not happened yet; the next sequence number will be this
-        // one plus one. Recording the current value and comparing with `<=` in
-        // the loop covers both the pre- and post-write case.
         self.self_write
             .store(crate::infra::platform::sequence_number().wrapping_add(1), Ordering::SeqCst);
     }
@@ -102,9 +98,6 @@ fn spawn_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) -> crate::err
         MSG, WINDOW_EX_STYLE, WINDOW_STYLE, WNDCLASSW, WM_CLIPBOARDUPDATE, WM_DESTROY,
     };
 
-    // The window procedure is a plain `extern "system"` fn and cannot capture,
-    // so the channel lives in thread-local storage. This is sound because the
-    // window, the message loop and the procedure all run on the same thread.
     thread_local! {
         static CONTEXT: RefCell<Option<(Sender<ClipboardChanged>, WatcherHandle)>> =
             const { RefCell::new(None) };
@@ -131,18 +124,15 @@ fn spawn_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) -> crate::err
                             handle.self_write.store(0, Ordering::SeqCst);
                             return;
                         }
-                        // A closed receiver means the app is shutting down.
                         let _ = tx.send(ClipboardChanged { sequence });
                     }
                 });
                 LRESULT(0)
             }
             WM_DESTROY => {
-                // SAFETY: called on the message-loop thread during teardown.
                 unsafe { PostQuitMessage(0) };
                 LRESULT(0)
             }
-            // SAFETY: forwarding to the default handler with the original args.
             _ => unsafe { DefWindowProcW(hwnd, msg, wparam, lparam) },
         }
     }
@@ -154,8 +144,6 @@ fn spawn_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) -> crate::err
         .spawn(move || {
             CONTEXT.with(|ctx| *ctx.borrow_mut() = Some((tx, handle)));
 
-            // SAFETY: every call below follows the documented Win32 contract;
-            // the window is destroyed and the listener removed before return.
             unsafe {
                 let instance = match GetModuleHandleW(PCWSTR::null()) {
                     Ok(i) => i,
@@ -172,7 +160,6 @@ fn spawn_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) -> crate::err
                     lpszClassName: PCWSTR(class_name.as_ptr()),
                     ..Default::default()
                 };
-                // A duplicate class registration is fine on a restart.
                 RegisterClassW(&class);
 
                 let hwnd = CreateWindowExW(
@@ -184,7 +171,6 @@ fn spawn_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) -> crate::err
                     CW_USEDEFAULT,
                     0,
                     0,
-                    // A message-only window: never shown, never in the taskbar.
                     Some(HWND_MESSAGE),
                     None,
                     Some(instance.into()),
@@ -209,8 +195,6 @@ fn spawn_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) -> crate::err
 
                 let mut msg = MSG::default();
                 while running.load(Ordering::SeqCst) {
-                    // GetMessageW blocks until something arrives, which is why
-                    // this thread costs nothing while idle.
                     let result = GetMessageW(&mut msg, None, 0, 0);
                     if result.0 <= 0 {
                         break;
@@ -230,107 +214,91 @@ fn spawn_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) -> crate::err
 }
 
 // ---------------------------------------------------------------------------
-// Linux implementation: XFixes event-driven with Wayland fallback
+// Linux implementation: Robust Dual-Protocol (X11 XFixes & Wayland)
 // ---------------------------------------------------------------------------
 
 #[cfg(target_os = "linux")]
 fn spawn_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) -> crate::error::Result<()> {
     use std::time::Duration;
-    use clipboard_master::{CallbackResult, ClipboardHandler, Master};
-
-    struct LinuxHandler {
-        tx: Sender<ClipboardChanged>,
-        handle: WatcherHandle,
-    }
-
-    impl ClipboardHandler for LinuxHandler {
-        fn on_clipboard_change(&mut self) -> CallbackResult {
-            if !self.handle.is_running() {
-                return CallbackResult::Stop;
-            }
-            if self.handle.is_paused() {
-                return CallbackResult::Next;
-            }
-
-            let seq = crate::infra::platform::linux::bump_sequence_number();
-            let expected = self.handle.self_write.load(Ordering::SeqCst);
-
-            // Echo suppression: ignore the event our own paste just produced.
-            if expected != 0 && seq <= expected {
-                self.handle.self_write.store(0, Ordering::SeqCst);
-                return CallbackResult::Next;
-            }
-
-            // A closed receiver means the app is shutting down.
-            if self.tx.send(ClipboardChanged { sequence: seq }).is_err() {
-                return CallbackResult::Stop;
-            }
-            CallbackResult::Next
-        }
-
-        fn on_clipboard_error(&mut self, error: std::io::Error) -> CallbackResult {
-            tracing::warn!(?error, "Linux clipboard event error");
-            CallbackResult::Next
-        }
-    }
+    use crate::infra::platform::linux::{detect_session_type, SessionType};
 
     std::thread::Builder::new()
         .name("clipboard-watcher-linux".into())
         .spawn(move || {
-            let handler = LinuxHandler { tx: tx.clone(), handle: handle.clone() };
+            let session = detect_session_type();
+            tracing::info!(?session, "starting Linux clipboard listener");
 
-            // 1. First attempt: native X11/XFixes event loop
-            let is_x11_available = Master::new(handler);
-            if let Ok(mut master) = is_x11_available {
-                tracing::info!("Linux clipboard monitor initialized with native X11/XFixes listener");
-                if let Err(e) = master.run() {
-                    tracing::warn!(?e, "X11 clipboard monitor exited; falling back to Wayland watcher");
-                } else {
-                    return;
+            if session == SessionType::X11 {
+                if let Err(e) = run_x11_xfixes_loop(tx.clone(), handle.clone()) {
+                    tracing::warn!(?e, "X11 XFixes monitor failed; falling back to Wayland/Polling monitor");
+                    run_wayland_loop(tx, handle);
                 }
             } else {
-                tracing::info!("X11 server not available or pure Wayland detected (e.g. KWin/Mutter); activating Wayland watcher");
+                run_wayland_loop(tx, handle);
             }
+        })
+        .map_err(|e| crate::error::Error::platform(format!("cannot spawn watcher thread: {e}")))?;
 
-            // 2. Wayland session (KDE Plasma 6 / GNOME / wlroots):
-            // In Wayland sessions, apps without an active focused surface cannot use XFixes.
-            // We use an adaptive watcher that safely queries the Wayland clipboard data source.
-            const WAYLAND_POLL: Duration = Duration::from_millis(250);
-            let mut last_hash = String::new();
+    Ok(())
+}
 
-            while handle.is_running() {
-                std::thread::sleep(WAYLAND_POLL);
+#[cfg(target_os = "linux")]
+fn run_x11_xfixes_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) -> Result<(), Box<dyn std::error::Error>> {
+    use x11rb::connection::Connection;
+    use x11rb::protocol::xfixes::*;
+    use x11rb::protocol::xproto::*;
+
+    let (conn, screen_num) = x11rb::connect(None)?;
+    let screen = conn.setup().roots.get(screen_num).ok_or("no screen")?;
+    let root = screen.root;
+
+    // Initialize XFixes extension
+    conn.xfixes_query_version(5, 0)?.reply()?;
+
+    let clip_atom = conn.intern_atom(false, b"CLIPBOARD")?.reply()?.atom;
+    let primary_atom = AtomEnum::PRIMARY.into();
+
+    // Listen for both standard CLIPBOARD and PRIMARY selection (like CopyQ)
+    conn.xfixes_select_selection_input(
+        root,
+        clip_atom,
+        SelectionEventMask::SET_SELECTION_OWNER
+            | SelectionEventMask::SELECTION_WINDOW_DESTROY
+            | SelectionEventMask::SELECTION_CLIENT_CLOSE,
+    )?;
+
+    conn.xfixes_select_selection_input(
+        root,
+        primary_atom,
+        SelectionEventMask::SET_SELECTION_OWNER
+            | SelectionEventMask::SELECTION_WINDOW_DESTROY
+            | SelectionEventMask::SELECTION_CLIENT_CLOSE,
+    )?;
+
+    conn.flush()?;
+    tracing::info!("native X11 XFixes clipboard & primary listener active");
+
+    let mut last_event_time = std::time::Instant::now();
+
+    while handle.is_running() {
+        if let Ok(Some(event)) = conn.poll_for_event() {
+            if let x11rb::protocol::Event::XfixesSelectionNotify(notify) = event {
                 if handle.is_paused() {
                     continue;
                 }
 
-                // Probe the Wayland clipboard via arboard (Wayland backend)
-                let Ok(mut clip) = arboard::Clipboard::new() else { continue };
-
-                // Fast fingerprint: check text first
-                let current_content = if let Ok(text) = clip.get_text() {
-                    if text.is_empty() {
+                // Debounce high frequency mouse selection events
+                if notify.selection == primary_atom {
+                    if last_event_time.elapsed() < Duration::from_millis(150) {
                         continue;
                     }
-                    crate::util::hash_bytes(text.as_bytes())
-                } else if let Ok(img) = clip.get_image() {
-                    let mut hash_input = Vec::with_capacity(16 + img.bytes.len().min(1024));
-                    hash_input.extend_from_slice(&(img.width as u32).to_le_bytes());
-                    hash_input.extend_from_slice(&(img.height as u32).to_le_bytes());
-                    hash_input.extend_from_slice(&img.bytes[..img.bytes.len().min(1024)]);
-                    crate::util::hash_bytes(&hash_input)
-                } else {
-                    continue;
-                };
-
-                if current_content == last_hash {
-                    continue;
+                    last_event_time = std::time::Instant::now();
                 }
 
-                last_hash = current_content;
                 let seq = crate::infra::platform::linux::bump_sequence_number();
                 let expected = handle.self_write.load(Ordering::SeqCst);
 
+                // Echo suppression
                 if expected != 0 && seq <= expected {
                     handle.self_write.store(0, Ordering::SeqCst);
                     continue;
@@ -340,22 +308,82 @@ fn spawn_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) -> crate::err
                     break;
                 }
             }
-        })
-        .map_err(|e| crate::error::Error::platform(format!("cannot spawn watcher thread: {e}")))?;
+        }
+        std::thread::sleep(Duration::from_millis(15));
+    }
 
     Ok(())
 }
 
+#[cfg(target_os = "linux")]
+fn run_wayland_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) {
+    use std::time::Duration;
+    const POLL_INTERVAL: Duration = Duration::from_millis(200);
+
+    let mut last_hash = String::new();
+    tracing::info!("Wayland adaptive clipboard monitor started");
+
+    while handle.is_running() {
+        std::thread::sleep(POLL_INTERVAL);
+        if handle.is_paused() {
+            continue;
+        }
+
+        // Read through wl-paste or arboard
+        let current_content = if let Ok(output) = std::process::Command::new("wl-paste")
+            .args(["-n"])
+            .output()
+        {
+            if output.status.success() && !output.stdout.is_empty() {
+                crate::util::hash_bytes(&output.stdout)
+            } else {
+                continue;
+            }
+        } else if let Ok(mut clip) = arboard::Clipboard::new() {
+            if let Ok(text) = clip.get_text() {
+                if text.is_empty() {
+                    continue;
+                }
+                crate::util::hash_bytes(text.as_bytes())
+            } else if let Ok(img) = clip.get_image() {
+                let mut h = Vec::with_capacity(8 + img.bytes.len().min(1024));
+                h.extend_from_slice(&(img.width as u32).to_le_bytes());
+                h.extend_from_slice(&(img.height as u32).to_le_bytes());
+                h.extend_from_slice(&img.bytes[..img.bytes.len().min(1024)]);
+                crate::util::hash_bytes(&h)
+            } else {
+                continue;
+            }
+        } else {
+            continue;
+        };
+
+        if current_content == last_hash {
+            continue;
+        }
+
+        last_hash = current_content;
+        let seq = crate::infra::platform::linux::bump_sequence_number();
+        let expected = handle.self_write.load(Ordering::SeqCst);
+
+        if expected != 0 && seq <= expected {
+            handle.self_write.store(0, Ordering::SeqCst);
+            continue;
+        }
+
+        if tx.send(ClipboardChanged { sequence: seq }).is_err() {
+            break;
+        }
+    }
+}
+
 // ---------------------------------------------------------------------------
-// Portable fallback: polling (platforms with no native listener)
+// Portable fallback: polling
 // ---------------------------------------------------------------------------
 
 #[cfg(not(any(windows, target_os = "linux")))]
 fn spawn_loop(tx: Sender<ClipboardChanged>, handle: WatcherHandle) -> crate::error::Result<()> {
     use std::time::Duration;
-
-    // Without a native change notification the only option is polling. 400 ms
-    // is a compromise between responsiveness and idle cost.
     const POLL: Duration = Duration::from_millis(400);
 
     std::thread::Builder::new()
