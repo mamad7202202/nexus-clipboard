@@ -214,7 +214,7 @@ pnpm app:build
 - **Data Encryption**: **XChaCha20-Poly1305** authenticated encryption with 192-bit random nonces per item.
 - **Search Sanitization**: Credential text is never indexed by SQLite FTS5; only masked placeholder tokens (`ghp_••••••••`) enter search tables.
 - **Webview Hardening**: Right-click context menus, F5 refreshes, and dev shortcuts are disabled in production builds.
-
+پ
 ---
 
 ## 📄 License
